@@ -1,0 +1,12 @@
+.*
+*.log
+
+config.yaml
+!.env_template
+!.pipeline
+!.dockerignore
+!.gitignore
+!.go-version
+!.github
+
+build/

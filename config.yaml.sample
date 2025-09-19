@@ -1,0 +1,25 @@
+log-level: "DEBUG"
+slack:
+  token: "xoxb-****"
+  message-template: |
+    *New notification from*: {from}
+    *Subject*: {subject}
+    {body}
+smtp:
+  listen-addr: "localhost:2525"
+  auth:
+    enabled: true
+    user-database: .htpasswd
+  policies:
+    from:
+      default-action: "deny"
+      allow:
+        - "trusted@example.com"
+      deny:
+        - "*@example.com"
+    to:
+      default-action: "deny"
+      allow:
+        - "*@mydomain.com"
+      deny:
+        - "*@otherdomain.com"
