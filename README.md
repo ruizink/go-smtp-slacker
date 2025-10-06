@@ -38,12 +38,6 @@ smtp:
         - "ignored@example.com"
 slack:
   token: "xoxb-your-slack-bot-token"
-  message-template: |
-    *From*: {from}
-    *To*: {to}
-    *Subject*: {subject}
-
-    {body}
 ```
 
 ---
@@ -53,8 +47,7 @@ slack:
 This section configures the core SMTP server.
 
 * `addr`: The IP address and port the server should listen on. Use `0.0.0.0` to listen on all network interfaces.
-
-> **Note:** Other server parameters (like timeouts, domain, and message size limits) are currently fixed but may become configurable in a future release.
+* `prefer-html-body`: Set to `true` to use the HTML body from email, if available, otherwise use plain text.
 
 #### `smtp.auth` Section
 
@@ -121,11 +114,6 @@ The matching is case-insensitive.
 This section configures the Slack integration.
 
 * `token`: The Slack Bot User OAuth Token for your Slack app. It usually starts with `xoxb-`. This is a **required** field. It can be set via the `SLACK_TOKEN` environment variable or a file specified with `--slack.token-file`.
-* `message-template`: A template for the message sent to Slack. It supports several placeholders that will be replaced with email content:
-  * `{from}`: The sender's email address.
-  * `{to}`: A comma-separated list of recipient email addresses.
-  * `{subject}`: The email's subject line.
-  * `{body}`: The email's body, converted to Slack's markdown format and block-quoted.
 
 ## Command-Line Flags
 
@@ -138,6 +126,7 @@ Flags can be used to override settings from the configuration file.
 | `--smtp.listen-addr` | | Listen address for the SMTP server. | `localhost:25` |
 | `--smtp.auth.enabled` | `-a` | Enable SMTP authentication. | `false` |
 | `--smtp.auth.user-database` | | Path to the user database file. | |
+| `--smtp.prefer-html-body` | | Use HTML from email, if available, otherwise use plain text | `true` |
 | `--slack.token-file` | | The path to a file containing the Slack token. | |
 | `--help` | `-h` | Prints this help message. | |
 | `--version` | `-V` | Prints the version. | |

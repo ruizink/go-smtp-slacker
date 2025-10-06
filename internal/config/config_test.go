@@ -32,7 +32,6 @@ func TestLoadConfig(t *testing.T) {
 log-level: "info"
 slack:
   token: "xoxb-slack-token"
-  message-template: "Email from {{.From}} to {{.To}}"
 smtp:
   listen-addr: "0.0.0.0:2525"
   auth:
@@ -63,8 +62,7 @@ smtp:
 			configContent: baseValidConfig,
 			check: func(t *testing.T, cfg *Config) {
 				assert.Equal(t, "info", cfg.LogLevel)
-				assert.Equal(t, "xoxb-slack-token", cfg.Slack.Token)
-				assert.Equal(t, "Email from {{.From}} to {{.To}}", cfg.Slack.MessageTemplate)
+				assert.Equal(t, "xoxb-slack-token", cfg.Slack.Token.GetValue())
 				assert.Equal(t, "0.0.0.0:2525", cfg.SMTP.ListenAddr)
 				assert.True(t, *cfg.SMTP.Auth.Enabled)
 				assert.Equal(t, "/etc/users.db", cfg.SMTP.Auth.UserDatabase)
@@ -77,7 +75,6 @@ smtp:
 			configContent: `
 slack:
   token: "xoxb-slack-token"
-  message-template: "template"
 smtp:
   listen-addr: "0.0.0.0:2525"
   auth:
@@ -108,8 +105,7 @@ smtp:
 			configContent: `
 slack:
   token: "xoxb-slack-token"
-  message-template: "template"
-smtp:
+  smtp:
   listen-addr: "0.0.0.0:2525"
   auth:
     enabled: true
@@ -124,8 +120,7 @@ smtp:
 			name: "missing slack token",
 			configContent: `
 slack:
-  message-template: "template"
-smtp:
+  smtp:
   listen-addr: "0.0.0.0:2525"
   auth:
     enabled: false
@@ -141,8 +136,7 @@ smtp:
 			configContent: `
 slack:
   token: "xoxb-slack-token"
-  message-template: "template"
-smtp:
+  smtp:
   listen-addr: "0.0.0.0:2525"
   auth:
     enabled: false
@@ -168,7 +162,6 @@ smtp:
 			configContent: `
 slack:
   token: t
-  message-template: m
 smtp:
   policies:
     from: { default-action: "allow" }
@@ -187,7 +180,6 @@ smtp:
 log-level: "info"
 slack:
   token: t
-  message-template: m
 smtp:
   policies:
     from: { default-action: "allow" }
@@ -201,8 +193,7 @@ smtp:
 			name: "slack token from file",
 			args: []string{"--slack.token-file", "token.txt"},
 			configContent: `
-slack:
-  message-template: "template"
+slack: {}
 smtp:
   listen-addr: "0.0.0.0:2525"
   auth: { enabled: false }
@@ -212,22 +203,21 @@ smtp:
 `,
 			tokenContent: "token-from-file-123",
 			check: func(t *testing.T, cfg *Config) {
-				assert.Equal(t, "token-from-file-123", cfg.Slack.Token)
+				assert.Equal(t, "token-from-file-123", cfg.Slack.Token.GetValue())
 			},
 		},
 		{
 			name: "slack token from env var",
 			env:  map[string]string{"SLACK_TOKEN": "token-from-env-456"},
 			configContent: `
-slack:
-  message-template: m
+slack: {}
 smtp:
   policies:
     from: { default-action: "allow" }
     to: { default-action: "deny" }
 `,
 			check: func(t *testing.T, cfg *Config) {
-				assert.Equal(t, "token-from-env-456", cfg.Slack.Token)
+				assert.Equal(t, "token-from-env-456", cfg.Slack.Token.GetValue())
 			},
 		},
 	}

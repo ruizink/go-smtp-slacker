@@ -1,10 +1,11 @@
 package main
 
 import (
+	"errors"
 	"go-smtp-slacker/internal/config"
 	"go-smtp-slacker/internal/email"
 	"go-smtp-slacker/internal/logger"
-	"go-smtp-slacker/internal/slack"
+	"go-smtp-slacker/internal/slacker"
 
 	"github.com/kr/pretty"
 )
@@ -21,7 +22,7 @@ func main() {
 	logger.Debugf("Loaded configuration: %# v\n", pretty.Formatter(cfg))
 
 	// Initialize Slack service
-	slackService, err := slack.NewService(cfg.Slack.Token, cfg.Slack.MessageTemplate)
+	slackService, err := slacker.NewService(cfg.Slack.Token)
 	if err != nil {
 		logger.Fatalf("Failed to initialize Slack service: %v", err)
 	}
@@ -42,7 +43,21 @@ func main() {
 
 			// Send to each recipient
 			for _, recipient := range e.To {
-				slackService.SendMessage(recipient, e.From, e.To, e.Subject, e.Body)
+				err := slackService.SendMessage(recipient, e.From, e.To, e.Subject, e.Body, *cfg.SMTP.PreferHTMLBody)
+
+				// if we failed to send the message (not using plain text), retry forcing the usage of plain text
+				if err != nil {
+					logger.Warnf("Failed to send message to '%s': %v", recipient, err)
+
+					var sendErr *slacker.ErrSendMessage
+					if errors.As(err, &sendErr) && *cfg.SMTP.PreferHTMLBody {
+						logger.Warnf("Retrying with plain text")
+						err := slackService.SendMessage(recipient, e.From, e.To, e.Subject, e.Body, true)
+						if err != nil {
+							logger.Errorf("Failed to send message to '%s': %v", recipient, err)
+						}
+					}
+				}
 			}
 		}
 	}()
