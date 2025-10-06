@@ -1,15 +1,12 @@
 log-level: "DEBUG"
 slack:
   token: "xoxb-****"
-  message-template: |
-    *New notification from*: {from}
-    *Subject*: {subject}
-    {body}
 smtp:
   listen-addr: "localhost:2525"
   auth:
     enabled: true
     user-database: .htpasswd
+  prefer-html-body: true
   policies:
     from:
       default-action: "deny"

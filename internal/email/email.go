@@ -43,11 +43,16 @@ type session struct {
 
 // email represents a parsed email.
 type email struct {
+	Body    EmailBody
 	From    string
-	To      []string
 	Subject string
-	Body    string
-	HTML    string // store original HTML if available
+	To      []string
+}
+
+// EmailBody represents the types of email bodies
+type EmailBody struct {
+	HTML string
+	Text string
 }
 
 // user represents an authenticated user with a bcrypt hashed password.
@@ -226,6 +231,9 @@ func (s *session) Data(r io.Reader) error {
 		return err
 	}
 
+	// log RAW email
+	logger.Tracef("Raw email:\n%s", string(b))
+
 	emailParsed, err := parsemail.Parse(bytes.NewReader(b))
 	if err != nil {
 		logger.Errorf("Error parsing email: %v", err)
@@ -251,18 +259,14 @@ func (s *session) Data(r io.Reader) error {
 		return nil
 	}
 
-	body := emailParsed.TextBody
-	html := emailParsed.HTMLBody
-	if html != "" {
-		body = html // keep HTML in Body for fallback
-	}
-
 	email := &email{
 		From:    from,
 		To:      to,
 		Subject: emailParsed.Subject,
-		Body:    body,
-		HTML:    html,
+		Body: EmailBody{
+			HTML: emailParsed.HTMLBody,
+			Text: emailParsed.TextBody,
+		},
 	}
 
 	// Send the parsed email to the channel

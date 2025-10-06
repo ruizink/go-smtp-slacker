@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"go-smtp-slacker/internal/logger"
+	"go-smtp-slacker/internal/utils"
 	"go-smtp-slacker/internal/version"
 	"os"
 	"strings"
@@ -20,6 +21,7 @@ type SMTPConfig struct {
 		From Policy `mapstructure:"from" validate:"required"`
 		To   Policy `mapstructure:"to" validate:"required"`
 	} `mapstructure:"policies" validate:"required"`
+	PreferHTMLBody *bool `mapstructure:"prefer-html-body"`
 }
 
 // PoliciesConfig holds the policy settings.
@@ -37,8 +39,7 @@ type AuthConfig struct {
 
 // SlackConfig holds the Slack settings.
 type SlackConfig struct {
-	Token           string `mapstructure:"token" validate:"required"`
-	MessageTemplate string `mapstructure:"message-template" validate:"required"`
+	Token utils.Secret `mapstructure:"token" validate:"required"`
 }
 
 // Config holds the application's settings.
@@ -75,6 +76,7 @@ func LoadConfig() (*Config, error) {
 	viper.SetDefault("config-file", "./config.yaml")
 	viper.SetDefault("log-level", "INFO")
 	viper.SetDefault("smtp.listen-addr", "localhost:25")
+	viper.SetDefault("smtp.prefer-html-body", true)
 
 	// Register command flags
 	regFlagString("config-file", viper.GetString("config-file"), "The path to the configuration file (YAML)")
@@ -82,6 +84,7 @@ func LoadConfig() (*Config, error) {
 	regFlagString("smtp.listen-addr", viper.GetString("smtp.listen-addr"), "Listen address for the SMTP server (e.g., ':25').")
 	regFlagBoolP("smtp.auth.enabled", "a", viper.GetBool("smtp.auth.enabled"), "Enable SMTP authentication")
 	regFlagString("smtp.auth.user-database", viper.GetString("smtp.auth.user-database"), "Path to the user database file")
+	regFlagBoolP("smtp.prefer-html-body", "p", viper.GetBool("smtp.prefer-html-body"), "Use HTML from email, if available, otherwise use plain text")
 	regFlagString("slack.token-file", viper.GetString("slack.token-file"), "The path to a file containing Slack's token")
 	regFlagBoolP("help", "h", false, "Prints this help message")
 	regFlagBoolP("version", "V", false, "Prints the version")
