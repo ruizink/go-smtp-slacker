@@ -236,7 +236,7 @@ func (s *Service) SendMessage(userEmail, sender string, to []string, subject str
 		Type: slack.MBTSection,
 		Text: &slack.TextBlockObject{
 			Type: slack.MarkdownType,
-			Text: fmt.Sprintf("*New notification from:* %s\n*Subject:* %s", sender, strings.Join(to, ", ")),
+			Text: fmt.Sprintf("*New notification from:* %s\n*Subject:* %s", sender, subject),
 		},
 	}
 
