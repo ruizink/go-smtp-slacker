@@ -1,8 +1,6 @@
 module go-smtp-slacker
 
-go 1.24.4
-
-toolchain go1.24.7
+go 1.25
 
 require (
 	github.com/DusanKasan/parsemail v1.2.0
@@ -11,7 +9,7 @@ require (
 	github.com/emersion/go-smtp v0.24.0
 	github.com/go-playground/validator/v10 v10.27.0
 	github.com/kr/pretty v0.3.1
-	github.com/slack-go/slack v0.17.3
+	github.com/slack-go/slack v0.23.1
 	github.com/spf13/pflag v1.0.10
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
